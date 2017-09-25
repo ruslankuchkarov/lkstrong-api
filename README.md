@@ -2,7 +2,7 @@ Install mongo
 
 npm i
 
-node app.js
+npm start
 
 swagger: http://localhost:8000/api-docs
 
