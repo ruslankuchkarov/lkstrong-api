@@ -28,11 +28,11 @@ var express = require('express'),
 router.post('/', function (req, res) {
     var name = req.body.name
     var program_id = req.body.program_id
+    if(!name || !program_id) {res.status(400).send()}
     User.createUser(name, program_id, (err, success) => {
         if (err) { throw err }
         if (!success) {
-            res.statusCode = 409
-            res.send(`User ${name} already exists!`)
+            res.status(409).send(`User ${name} already exists!`)
         }
         else {
             res.send(`User ${name} was created!`)
@@ -63,9 +63,11 @@ router.post('/', function (req, res) {
 router.post('/program', (req, res) => {
     var name = req.body.name
     var program = req.body.program_id
-    User.setProgram(name, program_id, (err, success) => {
+    if(!name || !program) {res.status(400).send()}
+    User.setProgram(name, program, (err, success) => {
         if (err) { throw err }
-        res.send(`Changed program for ${name} to ${program_id}!`)
+        if (!success) {res.status(404).send()}
+        res.send(`Changed program for ${name} to ${program}!`)
     })
 })
 
@@ -97,9 +99,10 @@ router.post('/score', (req, res) => {
     var name = req.body.name
     var date = req.body.date
     var score = req.body.score
+    if(!name || !score) {res.status(400).send()}
     User.addScore(name, score, date, (err, success) => {
         if (err) { throw err }
-        if (!success) { res.statusCode = 404 }
+        if (!success) { res.status(404).send() }
         res.send('done!')
     })
 })
@@ -127,8 +130,7 @@ router.get('/stat', (req, res) => {
         User.getStat(name, (err, scores) => {
             if (err) { return next(err) }
             if (scores.length == 0) {
-                res.statusCode = 404
-                res.send()
+                res.status(404).send()
             } else {
                 res.send({ 'count': scores.length, 'scores': scores })
             }
@@ -158,6 +160,7 @@ router.get('/stat', (req, res) => {
    */
 router.get('/program', (req, res) => {
     var name = req.query.name
+    if(!name) {res.status(400).send()}
     User.getProgram(program_id, (err, program) => {
         if (err) { return next(err) }
         res.send({ 'program_id': program_id })

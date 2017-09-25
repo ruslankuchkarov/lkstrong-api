@@ -60,8 +60,7 @@ UserSchema.statics.createUser = function (name, program_id, callback) {
 UserSchema.statics.setProgram = function (name, program_id, callback) {
     this.findByName(name, (err, result) => {
         if (err || result.length == 0) {
-            callback(err, false)
-            return
+            return callback(err, false)
         }
         var user = new this(result[0])
         user.program_id = program_id

@@ -43,6 +43,7 @@ var express = require('express'),
 router.post('/week', (req, res) => {
     var name = req.body.name
     var days = req.body.days
+    if(!name || !days) {res.status(400).send()}
     ProgramWeek.addProgramWeek(name, days, (err, success) => {
         if (err) { throw err }
         res.send(`Program week ${name} was created!`)
@@ -73,6 +74,7 @@ router.post('/week', (req, res) => {
 router.post('/', (req, res) => {
     var name = req.body.name
     var week_ids = req.body.week_ids
+    if(!name || !week_ids) {res.status(400).send()}
     Program.addProgram(name, week_ids, (err, success) => {
         if (err) { throw err }
         res.send(`Program ${name} was created!`)
@@ -96,6 +98,7 @@ router.post('/', (req, res) => {
  */
 router.get('/', (req, res) => {
     var program_id = req.query.id
+    if(!program_id) {res.status(400).send()}
     Program.getProgramInfo(program_id, (err, name, program) => {
         if (err) { throw err }
         res.send({ 'program': program })
