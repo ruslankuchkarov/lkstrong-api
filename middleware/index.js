@@ -7,7 +7,6 @@ module.exports = function (app, express) {
         bodyParser = require('body-parser'),
         swaggerJSDoc = require('swagger-jsdoc'),
         swaggerUi = require('swagger-ui-express'),
-        createError = require('http-errors'),
         // swagger options
         swaggerDefinition = {
             host: 'localhost:8000',
@@ -24,12 +23,9 @@ module.exports = function (app, express) {
         res.send(swaggerSpec)
     })
 
-    //app.use(express.favicon('public/images/favicon.ico'));
     app.use(bodyParser.json());
     app.use(require('../controllers'))
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-    app.use(express.static(path.join(__dirname, '../public')))
-    app.use("/public", express.static(path.join(__dirname, '../public')))
     mongoose.connect(config.get('db:url'), { useMongoClient: true })
     db.on('error', console.error.bind(console, 'MongoDB connection error: '))
 };

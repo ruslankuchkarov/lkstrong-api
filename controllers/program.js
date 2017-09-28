@@ -7,16 +7,18 @@ var express = require('express'),
 /**
  * @swagger
  * definitions:
- *   Week:
+ *   Day:
  *     type: object
  *     required:
  *       - name
- *       - days
+ *       - counts
  *     properties:
  *       name:
  *         type: string
- *       days:
- *          type: array
+ *       counts:
+ *         type: array
+ *         items:
+ *           type: integer
  */
 /**
    * @swagger
@@ -26,16 +28,22 @@ var express = require('express'),
    *     produces:
    *       - application/json
    *     parameters:
-     *        - name: name
-     *          description: Название недели.
-     *          required: true
-     *          type: string
-     *        - name: days
-     *          description: Расписание тренировок.
-     *          required: true
-     *          type: array
-     *          schema:
-   *                $ref: '#/definitions/Week'
+   *       - name: days
+   *         in: body
+   *         description: Расписание тренировок.
+   *         required: true
+   *         schema:
+   *           type: object
+   *           required:
+   *             - name
+   *             - days
+   *           properties:
+   *             name:
+   *               type: string
+   *             days:
+   *               type: array
+   *               items:
+   *                 $ref: "#/definitions/Day"
    *     responses:
    *       200:
    *            Program week ${name} was created!
@@ -43,9 +51,15 @@ var express = require('express'),
 router.post('/week', (req, res) => {
     var name = req.body.name
     var days = req.body.days
-    if(!name || !days) {res.status(400).send()}
+    if(!name || !days) {
+        res.status(400).send()
+        return
+    }
     ProgramWeek.addProgramWeek(name, days, (err, success) => {
-        if (err) { throw err }
+        if (err) { 
+            res.status(500).send(err.message) 
+            return
+        }
         res.send(`Program week ${name} was created!`)
     })
 })
@@ -58,15 +72,22 @@ router.post('/week', (req, res) => {
    *     produces:
    *       - application/json
    *     parameters:
-     *        - name: name
-     *          description: Название тренировки.
-     *          required: true
-     *          type: string
-     *        - name: week_ids
-     *          description: Массив ID недельных расписаний тренировок
-     *          required: true
-     *          type: array
-     *          schema: [String]
+   *        - name: Program
+   *          in: body
+   *          description: Расписание тренировок.
+   *          required: true
+   *          schema:
+   *            type: object         
+   *            required:
+   *              - name
+   *              - week_ids
+   *            properties:
+   *              name:
+   *                type: string
+   *              week_ids:
+   *                type: array
+   *                items:
+   *                  type: string
    *     responses:
    *       200:
    *            Program ${name} was created!
@@ -74,52 +95,139 @@ router.post('/week', (req, res) => {
 router.post('/', (req, res) => {
     var name = req.body.name
     var week_ids = req.body.week_ids
-    if(!name || !week_ids) {res.status(400).send()}
+    if(!name || !week_ids) {
+        res.status(400).send()
+        return
+    }
     Program.addProgram(name, week_ids, (err, success) => {
-        if (err) { throw err }
+        if (err) { 
+            res.status(500).send(err.message) 
+            return
+        }
         res.send(`Program ${name} was created!`)
     })
 })
 
 /**
  * @swagger
- * /programs?id=:
+ * /programs:
  *   get:
  *     description: Возвращает программу тренировок
  *     produces:
  *      - application/json
  *     parameters:
  *       - name: id
+ *         in: query
  *         description: ID программы тренировки
  *         required: true
  *     responses:
  *       200:
- *         scores: {name: program_name, program: {week_name: [ {name: day_name, _id: db_id, counts: [Number]} ]}}
+ *         content:
+ *           'application/json':
+ *         example:
+ *           name: По харду
+ *           program: 
+ *             Первая неделя: [{name: пн, _id: 59b92a2101a53b1a7ad47eff, counts: [12, 14, 16, 15, 16]}]
+ *             Вторая неделя: [{name: пн, _id: 59b82f2101a53b1a2ad59eaf, counts: [14, 16, 18, 16, 18]}]
+ *       400:
  */
 router.get('/', (req, res) => {
     var program_id = req.query.id
-    if(!program_id) {res.status(400).send()}
+    if(!program_id) {
+        res.status(400).send()
+        return
+    }
     Program.getProgramInfo(program_id, (err, name, program) => {
-        if (err) { throw err }
-        res.send({ 'program': program })
+        if (err) { 
+            res.status(500).send(err.message) 
+            return
+        }
+        res.send({'name': name, 'program': program })
     })
 })
 
 /**
  * @swagger
- * /programs/ids:
+ * /programs/program_ids:
  *   get:
- *     description: Возвращает все ID существующих программ тренировок
+ *     description: Возвращает массив ID всех существующих программ тренировок
  *     produces:
  *      - application/json
  *     responses:
- *       200:
- *         count: ids_count
- *         ids: [String]
+   *       200:
+   *         content:
+   *           'application/json':
+   *         example: 
+   *           count: 2
+   *           ids: [59bcc62d50bce82d5339d744, 59bcc62d50bce82d5339d745]
  */
-router.get('/ids', (req, res) => {
+router.get('/program_ids', (req, res) => {
     Program.getAllids((err, ids) => {
-        if (err) { throw err }
+        if (err) { 
+            res.status(500).send(err.message) 
+            return
+        }
+        res.send({ 'count': ids.length, ids })
+    })
+})
+
+/**
+ * @swagger
+ * /programs/week:
+ *   get:
+ *     description: Возвращает недельную программу тренировок
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *       - name: id
+ *         in: query
+ *         description: ID недельной программы тренировки
+ *         required: true
+ *     responses:
+ *       200:
+ *         content:
+ *           'application/json':
+ *         example:
+ *           name: Жаркая неделька
+ *           days: [{name: пн, _id: 59b92a2101a53b1a7ad47eff, counts: [12, 14, 16, 15, 16]}, {name: вт, _id: 59b92a2101a53b1a7ad47eff, counts: [12, 14, 16, 15, 16]}]
+ *       400:
+ */
+router.get('/week', (req, res) => {
+    var program_id = req.query.id
+    if(!program_id) {
+        res.status(400).send()
+        return
+    }
+    ProgramWeek.getProgramWeek(program_id, (err, name, days) => {
+        if (err) { 
+            res.status(500).send(err.message) 
+            return
+        }
+        res.send({'name': name, 'days': days })
+    })
+})
+
+/**
+ * @swagger
+ * /programs/week_ids:
+ *   get:
+ *     description: Возвращает массив ID всех существующих недельных программ тренировок
+ *     produces:
+ *      - application/json
+ *     responses:
+   *       200:
+   *         content:
+   *           'application/json':
+   *         example: 
+   *           count: 2
+   *           ids: [59bcc62d50bce82d5339d744, 59bcc62d50bce82d5339d745]
+ */
+router.get('/week_ids', (req, res) => {
+    ProgramWeek.getAllids((err, ids) => {
+        if (err) { 
+            res.status(500).send(err.message) 
+            return
+        }
         res.send({ 'count': ids.length, ids })
     })
 })
