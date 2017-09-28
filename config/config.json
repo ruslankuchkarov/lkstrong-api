@@ -1,5 +1,5 @@
 {
-	"port": 8000,
+    "port": 8000,
     "db": {
         "url": "mongodb://localhost:27017/LKStrong"
     }

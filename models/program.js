@@ -29,8 +29,8 @@ ProgramSchema.statics.getProgramInfo = function (id, cb) {
         var done_program = {}
         var itemsProcessed = 0
         program[0].weeks.forEach((week, index, array) => {
-            ProgramWeek.getProgramWeek(week.week_id, (err, program_week) => {
-                done_program[program_week.name] = program_week.days
+            ProgramWeek.getProgramWeek(week.week_id, (err, week_name, week_days) => {
+                done_program[week_name] = week_days
                 itemsProcessed++
                 if (itemsProcessed === array.length) {
                     cb(null, program[0].name, done_program)

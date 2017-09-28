@@ -51,13 +51,13 @@ var express = require('express'),
 router.post('/week', (req, res) => {
     var name = req.body.name
     var days = req.body.days
-    if(!name || !days) {
+    if (!name || !days) {
         res.status(400).send()
         return
     }
     ProgramWeek.addProgramWeek(name, days, (err, success) => {
-        if (err) { 
-            res.status(500).send(err.message) 
+        if (err) {
+            res.status(500).send(err.message)
             return
         }
         res.send(`Program week ${name} was created!`)
@@ -95,13 +95,13 @@ router.post('/week', (req, res) => {
 router.post('/', (req, res) => {
     var name = req.body.name
     var week_ids = req.body.week_ids
-    if(!name || !week_ids) {
+    if (!name || !week_ids) {
         res.status(400).send()
         return
     }
     Program.addProgram(name, week_ids, (err, success) => {
-        if (err) { 
-            res.status(500).send(err.message) 
+        if (err) {
+            res.status(500).send(err.message)
             return
         }
         res.send(`Program ${name} was created!`)
@@ -133,16 +133,16 @@ router.post('/', (req, res) => {
  */
 router.get('/', (req, res) => {
     var program_id = req.query.id
-    if(!program_id) {
+    if (!program_id) {
         res.status(400).send()
         return
     }
     Program.getProgramInfo(program_id, (err, name, program) => {
-        if (err) { 
-            res.status(500).send(err.message) 
+        if (err) {
+            res.status(500).send(err.message)
             return
         }
-        res.send({'name': name, 'program': program })
+        res.send({ 'name': name, 'program': program })
     })
 })
 
@@ -163,8 +163,8 @@ router.get('/', (req, res) => {
  */
 router.get('/program_ids', (req, res) => {
     Program.getAllids((err, ids) => {
-        if (err) { 
-            res.status(500).send(err.message) 
+        if (err) {
+            res.status(500).send(err.message)
             return
         }
         res.send({ 'count': ids.length, ids })
@@ -194,16 +194,20 @@ router.get('/program_ids', (req, res) => {
  */
 router.get('/week', (req, res) => {
     var program_id = req.query.id
-    if(!program_id) {
+    if (!program_id) {
         res.status(400).send()
         return
     }
     ProgramWeek.getProgramWeek(program_id, (err, name, days) => {
-        if (err) { 
-            res.status(500).send(err.message) 
+        if (err) {
+            res.status(500).send(err.message)
             return
         }
-        res.send({'name': name, 'days': days })
+        if (!name) {
+            res.status(404).send()
+            return
+        }
+        res.send({ 'name': name, 'days': days })
     })
 })
 
@@ -224,8 +228,8 @@ router.get('/week', (req, res) => {
  */
 router.get('/week_ids', (req, res) => {
     ProgramWeek.getAllids((err, ids) => {
-        if (err) { 
-            res.status(500).send(err.message) 
+        if (err) {
+            res.status(500).send(err.message)
             return
         }
         res.send({ 'count': ids.length, ids })

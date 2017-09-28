@@ -38,7 +38,7 @@ UserSchema.statics.getAllStat = function (cb) {
 
 UserSchema.statics.getProgram = function (name, callback) {
     this.findByName(name, (err, result) => {
-        if (err || result.length == 0) { return callback(err, null)}
+        if (err || result.length == 0) { return callback(err, null) }
         callback(null, result[0].program_id)
     })
 }

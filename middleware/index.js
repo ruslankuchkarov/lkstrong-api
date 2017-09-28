@@ -1,7 +1,7 @@
 module.exports = function (app, express) {
     var path = require('path'),
         config = require('../config'),
-        url = require("url")
+        url = require("url"),
         mongoose = require('mongoose'),
         db = mongoose.connection,
         bodyParser = require('body-parser'),
@@ -17,7 +17,7 @@ module.exports = function (app, express) {
             apis: ['./controllers/*.js']
         },
         swaggerSpec = swaggerJSDoc(options)
-    
+
     app.get('/swagger.json', function (req, res) {
         res.setHeader('Content-Type', 'application/json')
         res.send(swaggerSpec)
