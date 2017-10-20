@@ -158,7 +158,8 @@ router.get('/', (req, res) => {
    *           'application/json':
    *         example: 
    *           count: 2
-   *           result: [59bcc62d50bce82d5339d744, 59bcc62d50bce82d5339d745]
+   *           result: [{name: Первая неделя, id: 59bcc62d50bce82d5339d744}, 
+   *                   {name: Вторая неделя, id: 59bcc62d50bce82d5339d745}]
  */
 router.get('/program_ids', (req, res) => {
     Program.getAllids((err, ids) => {
@@ -223,7 +224,8 @@ router.get('/week', (req, res) => {
    *           'application/json':
    *         example: 
    *           count: 2
-   *           result: [59bcc62d50bce82d5339d744, 59bcc62d50bce82d5339d745]
+   *           result: [{name: Жаркая неделька, id: 59bcc62d50bce82d5339d744}, 
+   *                   {name: Нормальная неделя, id: 59bcc62d50bce82d5339d745}]
  */
 router.get('/week_ids', (req, res) => {
     ProgramWeek.getAllids((err, ids) => {
