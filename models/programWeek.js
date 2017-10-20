@@ -28,12 +28,12 @@ ProgramWeekSchema.statics.addProgramWeek = function (name, days, callback) {
 }
 
 ProgramWeekSchema.statics.getAllids = function (cb) {
-    this.find({}, { _id: 1 }).exec((err, ids) => {
+    this.find({}, { _id: 1, name: 1 }).exec((err, ids) => {
         if (err) return cb(err)
         var idsarray = []
         var itemsProcessed = 0
         ids.forEach((id, index, array) => {
-            idsarray.push(id._id)
+            idsarray.push({name: id.name, id: id._id})
             itemsProcessed++
             if (itemsProcessed === array.length) {
                 cb(null, idsarray)

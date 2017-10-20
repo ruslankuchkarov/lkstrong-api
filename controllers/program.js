@@ -126,10 +126,9 @@ router.post('/', (req, res) => {
  *           'application/json':
  *         example:
  *           name: По харду
- *           program: 
- *             Первая неделя: [{name: пн, _id: 59b92a2101a53b1a7ad47eff, counts: [12, 14, 16, 15, 16]}]
- *             Вторая неделя: [{name: пн, _id: 59b82f2101a53b1a2ad59eaf, counts: [14, 16, 18, 16, 18]}]
- *       400:
+ *           weeks: 
+ *             [{week_name: Первая неделя, days: [{name: пн, _id: 59b92a2101a53b1a7ad47eff, counts: [12, 14, 16, 15, 16]}]},
+ *             {week_name: Вторая неделя, days: [{name: пн, _id: 59b82f2101a53b1a2ad59eaf, counts: [14, 16, 18, 16, 18]}]}]
  */
 router.get('/', (req, res) => {
     var program_id = req.query.id
@@ -142,7 +141,7 @@ router.get('/', (req, res) => {
             res.status(500).send(err.message)
             return
         }
-        res.send({ 'name': name, 'program': program })
+        res.send({'name': name, 'weeks': program })
     })
 })
 
@@ -159,7 +158,7 @@ router.get('/', (req, res) => {
    *           'application/json':
    *         example: 
    *           count: 2
-   *           ids: [59bcc62d50bce82d5339d744, 59bcc62d50bce82d5339d745]
+   *           result: [59bcc62d50bce82d5339d744, 59bcc62d50bce82d5339d745]
  */
 router.get('/program_ids', (req, res) => {
     Program.getAllids((err, ids) => {
@@ -167,7 +166,7 @@ router.get('/program_ids', (req, res) => {
             res.status(500).send(err.message)
             return
         }
-        res.send({ 'count': ids.length, ids })
+        res.send({ 'count': ids.length, 'result': ids })
     })
 })
 
@@ -207,7 +206,7 @@ router.get('/week', (req, res) => {
             res.status(404).send()
             return
         }
-        res.send({ 'name': name, 'days': days })
+        res.send({'name': name, 'days': days })
     })
 })
 
@@ -224,7 +223,7 @@ router.get('/week', (req, res) => {
    *           'application/json':
    *         example: 
    *           count: 2
-   *           ids: [59bcc62d50bce82d5339d744, 59bcc62d50bce82d5339d745]
+   *           result: [59bcc62d50bce82d5339d744, 59bcc62d50bce82d5339d745]
  */
 router.get('/week_ids', (req, res) => {
     ProgramWeek.getAllids((err, ids) => {
@@ -232,7 +231,7 @@ router.get('/week_ids', (req, res) => {
             res.status(500).send(err.message)
             return
         }
-        res.send({ 'count': ids.length, ids })
+        res.send({ 'count': ids.length, 'result': ids })
     })
 })
 

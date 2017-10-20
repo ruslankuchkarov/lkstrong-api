@@ -177,7 +177,7 @@ router.get('/stat', (req, res) => {
             if (!scores) {
                 res.status(404).send("User not found!")
             } else {
-                res.send({ 'count': scores.length, 'scores': scores })
+                res.send({ 'count': scores.length, 'result': scores })
             }
         })
     } else {
@@ -186,7 +186,7 @@ router.get('/stat', (req, res) => {
                 res.status(500).send(err.message)
                 return
             }
-            res.send({ 'count': Object.keys(users).length, 'users': users })
+            res.send({ 'count': Object.keys(users).length, 'result': users })
         })
     }
 })

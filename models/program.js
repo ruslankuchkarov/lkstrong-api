@@ -8,12 +8,12 @@ var ProgramSchema = Schema({
 })
 
 ProgramSchema.statics.getAllids = function (cb) {
-    this.find({}, { _id: 1 }).exec((err, ids) => {
+    this.find({}, { _id: 1, name: 1 }).exec((err, ids) => {
         if (err) return cb(err)
         var idsarray = []
         var itemsProcessed = 0
-        ids.forEach((id, index, array) => {
-            idsarray.push(id._id)
+        ids.forEach((program, index, array) => {
+            idsarray.push({name: program.name, id: program._id})
             itemsProcessed++
             if (itemsProcessed === array.length) {
                 cb(null, idsarray)
@@ -26,11 +26,11 @@ ProgramSchema.statics.getProgramInfo = function (id, cb) {
     var query = (id) ? { '_id': id } : {} // на будущее
     this.find(query).exec((err, program) => {
         if (err) return cb(err)
-        var done_program = {}
+        var done_program = []
         var itemsProcessed = 0
         program[0].weeks.forEach((week, index, array) => {
             ProgramWeek.getProgramWeek(week.week_id, (err, week_name, week_days) => {
-                done_program[week_name] = week_days
+                done_program.push({'week_name': week_name, 'days': week_days})
                 itemsProcessed++
                 if (itemsProcessed === array.length) {
                     cb(null, program[0].name, done_program)
