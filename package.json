@@ -11,7 +11,8 @@
     "swagger-ui-express": "latest",
     "nodemon": "^1.12.1",
     "validator": "^8.2.0",
-    "nconf": "^0.8.4"
+    "nconf": "^0.8.4",
+    "cors": "^2.8.4"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

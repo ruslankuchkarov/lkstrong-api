@@ -4,6 +4,7 @@ module.exports = function (app, express) {
         url = require("url"),
         mongoose = require('mongoose'),
         db = mongoose.connection,
+        cors = require('cors'),
         bodyParser = require('body-parser'),
         swaggerJSDoc = require('swagger-jsdoc'),
         swaggerUi = require('swagger-ui-express'),
@@ -26,6 +27,7 @@ module.exports = function (app, express) {
     app.use(bodyParser.json());
     app.use(require('../controllers'))
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+    app.use(cors({origin: 'http://localhost:3000'}))
     mongoose.connect(config.get('db:url'), { useMongoClient: true })
     db.on('error', console.error.bind(console, 'MongoDB connection error: '))
 };
