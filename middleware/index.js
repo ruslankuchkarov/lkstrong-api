@@ -10,7 +10,7 @@ module.exports = function (app, express) {
         swaggerUi = require('swagger-ui-express'),
         // swagger options
         swaggerDefinition = {
-            host: 'localhost:8000',
+            host: 'lk-strong.bizaccount-dev.os-n3.hw:8000',
             basePath: '/api'
         },
         options = {
@@ -27,7 +27,7 @@ module.exports = function (app, express) {
     app.use(bodyParser.json());
     app.use(require('../controllers'))
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-    app.use(cors({origin: 'http://localhost:3000'}))
+    app.use(cors({origin: 'http://lk-strong.bizaccount-dev.os-n3.hw:8000'}))
     mongoose.connect(config.get('db:url'), { useMongoClient: true })
     db.on('error', console.error.bind(console, 'MongoDB connection error: '))
 };
