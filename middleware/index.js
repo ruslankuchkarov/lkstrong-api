@@ -27,7 +27,7 @@ module.exports = function (app, express) {
     app.use(bodyParser.json());
     app.use(require('../controllers'))
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-    app.use(cors({origin: 'http://lk-strong.bizaccount-dev.os-n3.hw:8000'}))
+    app.use(cors({origin: '*'}))
     mongoose.connect(config.get('db:url'), { useMongoClient: true })
     db.on('error', console.error.bind(console, 'MongoDB connection error: '))
 };
