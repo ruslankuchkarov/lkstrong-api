@@ -37,7 +37,6 @@ router.post('/', function (req, res) {
     var name = req.body.name
     var program_id = req.body.program_id
     if (!name || !program_id) {
-        console.log(name + " " + program_id)
         res.status(400).send()
         return
     }
@@ -88,6 +87,52 @@ router.post('/program', (req, res) => {
             res.status(404).send()
         } else {
             res.send(`Changed program for ${name} to ${program}!`)
+        }
+    })
+})
+
+/**
+   * @swagger
+   * /users/program/start:
+   *   post:
+   *     description: Запускает программу тренировки
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *        - name: User
+   *          in: body
+   *          description: Имя пользователя и id его программы тренировок
+   *          schema:
+   *            type: object
+   *            required:
+   *              - name
+   *              - start_date
+   *            properties:
+   *              name:
+   *                type: string
+   *              start_date:
+   *                type: string
+   *                format: date
+   *     responses:
+   *       200:
+   *         Changed program for ${name} to ${program_id}!!
+*/
+router.post('/program/start', (req, res) => {
+    var name = req.body.name
+    var start_date = req.body.start_date
+    if (!name || !start_date) {
+        res.status(400).send()
+        return
+    }
+    User.startProgram(name, start_date, (err, success) => {
+        if (err) {
+            res.status(500).send(err.message)
+            return
+        }
+        if (!success) {
+            res.status(404).send()
+        } else {
+            res.send(`Program started!`)
         }
     })
 })
@@ -156,6 +201,14 @@ router.post('/score', (req, res) => {
  *       - name: name
  *         in: query
  *         description: Имя пользователя
+ *         required: true
+ *       - name: date_from
+ *         in: query
+ *         description: Дата от
+ *         required: false
+ *       - name: date_to
+ *         in: query
+ *         description: Дата до
  *         required: false
  *     responses:
  *       200:
@@ -168,14 +221,70 @@ router.post('/score', (req, res) => {
  */
 router.get('/stat', (req, res) => {
     var name = req.query.name
-    if (name) {
-        User.getStat(name, (err, scores) => {
+    var date_from = req.query.date_from
+    var date_to = req.query.date_to
+    if (date_from) {
+        User.getStatByDateAndName(name, date_from, date_to, (err, scores) => {
             if (err) {
                 res.status(500).send(err.message)
                 return
             }
             if (!scores) {
-                res.status(404).send("User not found!")
+                res.status(404).send("Scores not found!")
+            } else {
+                res.send({ 'count': scores.length, 'result': scores })
+            }
+        })
+    } else {
+        User.getStatByName(name, (err, scores) => {
+            if (err) {
+                res.status(500).send(err.message)
+                return
+            }if (!scores) {
+                res.status(404).send("Scores not found!")
+            } else {
+                res.send({ 'count': Object.keys(scores).length, 'result': scores })
+            }
+        })
+    }
+})
+
+/**
+ * @swagger
+ * /users/stat/all:
+ *   get:
+ *     description: Возвращает результаты тренировок. Если имя не указано, то возвращаются результаты всех юзеров.
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *       - name: date_from
+ *         in: query
+ *         description: Дата от
+ *         required: false
+ *       - name: date_to
+ *         in: query
+ *         description: Дата до
+ *         required: false
+ *     responses:
+ *       200:
+ *         content:
+ *           'application/json':
+ *         example: 
+ *           count: 1
+ *           scores: [{score: 86, date: 2017-09-12T09:30:01.436Z, _id: 59b7a919dba5bb25bfb37f42}]
+ *       404:
+ */
+router.get('/stat/all', (req, res) => {
+    var date_from = req.query.date_from
+    var date_to = req.query.date_to
+    if (date_from) {
+        User.getAllStatByDate(date_from, date_to, (err, scores) => {
+            if (err) {
+                res.status(500).send(err.message)
+                return
+            }
+            if (!scores) {
+                res.status(404).send("Scores not found!")
             } else {
                 res.send({ 'count': scores.length, 'result': scores })
             }
