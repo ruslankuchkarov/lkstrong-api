@@ -55,9 +55,9 @@ UserSchema.statics.getStatByDateAndName = function (name, date_from, date_to, ca
 UserSchema.statics.getAllStat = function (cb) {
     this.find().exec((err, users) => {
         if (err) return cb(err)
-        var userMap = {}
+        var userMap = []
         users.forEach((user) => {
-            userMap[user.name] = user.scores
+            userMap.push({'name': user.name, 'scores': user.scores})
         })
         cb(null, userMap)
     })
