@@ -5,6 +5,9 @@ var express = require('express'),
     ProgramWeek = mongoose.model('ProgramWeek')
 
 /**
+ * tags:
+ * - name: programs
+ *  description: Всё, что связано с программами тренировок
  * @swagger
  * definitions:
  *   Day:
@@ -24,6 +27,8 @@ var express = require('express'),
    * @swagger
    * /programs/week:
    *   post:
+   *     tags:
+   *       - programs
    *     description: Добавляет недельное расписание тренировок
    *     produces:
    *       - application/json
@@ -68,6 +73,8 @@ router.post('/week', (req, res) => {
    * @swagger
    * /programs:
    *   post:
+   *     tags:
+   *       - programs
    *     description: Добавляет программу тренировок
    *     produces:
    *       - application/json
@@ -112,6 +119,8 @@ router.post('/', (req, res) => {
  * @swagger
  * /programs:
  *   get:
+ *     tags:
+ *       - programs
  *     description: Возвращает программу тренировок
  *     produces:
  *      - application/json
@@ -149,6 +158,8 @@ router.get('/', (req, res) => {
  * @swagger
  * /programs/program_ids:
  *   get:
+ *     tags:
+ *       - programs
  *     description: Возвращает массив ID всех существующих программ тренировок
  *     produces:
  *      - application/json
@@ -175,6 +186,8 @@ router.get('/program_ids', (req, res) => {
  * @swagger
  * /programs/week:
  *   get:
+ *     tags:
+ *       - programs
  *     description: Возвращает недельную программу тренировок
  *     produces:
  *      - application/json
@@ -215,6 +228,8 @@ router.get('/week', (req, res) => {
  * @swagger
  * /programs/week_ids:
  *   get:
+ *     tags:
+ *       - programs
  *     description: Возвращает массив ID всех существующих недельных программ тренировок
  *     produces:
  *      - application/json

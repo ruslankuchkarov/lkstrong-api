@@ -4,24 +4,14 @@ var mongoose = require('mongoose'),
 var UserSchema = Schema({
     name: String,
     program: {
-        program_id: String,
-        program_start_date: Date,
-        progress: Number
+        id: String,
+        start_date: Date,
+        progress: Number,
+        status: {type: String, enum: ['not_started', 'started', 'paused', 'stopped'], default: 'not_started'}
     },
     achievements: [String],
     scores: [{ date: Date, score: Number }]
 })
-
-UserSchema.statics.findByName = function (name, callback) {
-    return this.find({ 'name': name }, callback)
-}
-
-UserSchema.statics.all = function (cb) {
-    this.find().exec((err, users) => {
-        if (err) return cb(err)
-        cb(null, users)
-    })
-}
 
 function filterScores(scores, dateFrom, dateTo, cb) {
     scoresArray = []
@@ -35,6 +25,25 @@ function filterScores(scores, dateFrom, dateTo, cb) {
         if ((index + 1) === array.length) {
             cb(null, scoresArray)
         }
+    })
+}
+
+UserSchema.statics.findByName = function (name, callback) {
+    return this.find({ 'name': name }, callback)
+}
+
+UserSchema.statics.all = function (cb) {
+    this.find().exec((err, users) => {
+        if (err) return cb(err)
+        cb(null, users)
+    })
+}
+
+UserSchema.statics.getInfo = function (name, cb) {
+    this.find({'name': name}, {'__v': 0, 'scores': 0}).exec((err, result) => {
+        console.log(result)
+        if (err || result.length == 0) return cb(err, null)
+        cb(null, result[0])
     })
 }
 
@@ -88,7 +97,7 @@ UserSchema.statics.getAllStatByDate = function (date_from, date_to, cb) {
 UserSchema.statics.getProgram = function (name, callback) {
     this.findByName(name, (err, result) => {
         if (err || result.length == 0) { return callback(err, null) }
-        callback(null, result[0].program.program_id)
+        callback(null, result[0].program.id)
     })
 }
 
@@ -98,7 +107,7 @@ UserSchema.statics.createUser = function (name, program_id, callback) {
         if (result.length == 0) {
             var newUser = new this()
             newUser.name = name
-            newUser.program.program_id = program_id
+            newUser.program.id = program_id
             newUser.scores = []
             newUser.save()
             callback(null, true)
@@ -112,7 +121,7 @@ UserSchema.statics.setProgram = function (name, program_id, callback) {
             return callback(err, false)
         }
         var user = new this(result[0])
-        user.program.program_id = program_id
+        user.program.id = program_id
         user.save()
         callback(null, true)
     })
@@ -124,8 +133,33 @@ UserSchema.statics.startProgram = function (name, start_date, callback) {
             return callback(err, false)
         }
         var user = new this(result[0])
-        user.program.program_start_date = start_date
+        user.program.start_date = start_date
+        user.program.status = 'started'
         user.save()
+        callback(null, true)
+    })
+}
+
+UserSchema.statics.stopProgram = function (name, callback) {
+    this.findByName(name, (err, result) => {
+        if (err || result.length == 0) {
+            return callback(err, false)
+        }
+        var user = new this(result[0])
+        user.program.start_date = null
+        user.program.status = 'stopped'
+        user.save()
+        callback(null, true)
+    })
+}
+
+UserSchema.statics.pauseProgram = function (name, callback) {
+    this.findByName(name, (err, result) => {
+        if (err || result.length == 0) {
+            return callback(err, false)
+        }
+        var user = new this(result[0])
+        user.program.status = 'paused'
         callback(null, true)
     })
 }

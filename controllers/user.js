@@ -4,9 +4,14 @@ var express = require('express'),
     User = mongoose.model('User')
 
 /**
+ * tags:
+  - name: users
+    description: Всё, что связано с пользователями
    * @swagger
    * /users:
    *   post:
+   *     tags:
+   *       - users
    *     description: Регистриует юзера с id программы тренировок
    *     consumes:
    *       - application/json
@@ -58,6 +63,8 @@ router.post('/', function (req, res) {
    * @swagger
    * /users/program:
    *   post:
+   *     tags:
+   *       - users
    *     description: Привязывает к юзеру id программы тренировок
    *     produces:
    *       - application/json
@@ -95,13 +102,15 @@ router.post('/program', (req, res) => {
    * @swagger
    * /users/program/start:
    *   post:
+   *     tags:
+   *       - users
    *     description: Запускает программу тренировки
    *     produces:
    *       - application/json
    *     parameters:
    *        - name: User
    *          in: body
-   *          description: Имя пользователя и id его программы тренировок
+   *          description: Имя пользователя
    *          schema:
    *            type: object
    *            required:
@@ -115,7 +124,7 @@ router.post('/program', (req, res) => {
    *                format: date
    *     responses:
    *       200:
-   *         Changed program for ${name} to ${program_id}!!
+   *         Program started!
 */
 router.post('/program/start', (req, res) => {
     var name = req.body.name
@@ -139,8 +148,96 @@ router.post('/program/start', (req, res) => {
 
 /**
    * @swagger
+   * /users/program/stop:
+   *   post:
+   *     tags:
+   *       - users
+   *     description: Останавливает программу тренировки
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *        - name: User
+   *          in: body
+   *          description: Имя пользователя
+   *          schema:
+   *            type: object
+   *            required:
+   *              - name
+   *            properties:
+   *              name:
+   *                type: string
+   *     responses:
+   *       200:
+   *         Program stopped!
+*/
+router.post('/program/stop', (req, res) => {
+    var name = req.body.name
+    if (!name) {
+        res.status(400).send()
+        return
+    }
+    User.stopProgram(name, (err, success) => {
+        if (err) {
+            res.status(500).send(err.message)
+            return
+        }
+        if (!success) {
+            res.status(404).send()
+        } else {
+            res.send(`Program stopped!`)
+        }
+    })
+})
+
+/**
+   * @swagger
+   * /users/program/pause:
+   *   post:
+   *     tags:
+   *       - users
+   *     description: Ставит программу тренировки на паузу
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *        - name: User
+   *          in: body
+   *          description: Имя пользователя
+   *          schema:
+   *            type: object
+   *            required:
+   *              - name
+   *            properties:
+   *              name:
+   *                type: string
+   *     responses:
+   *       200:
+   *         Program paused!
+*/
+router.post('/program/pause', (req, res) => {
+    var name = req.body.name
+    if (!name) {
+        res.status(400).send()
+        return
+    }
+    User.pauseProgram(name, (err, success) => {
+        if (err) {
+            res.status(500).send(err.message)
+            return
+        }
+        if (!success) {
+            res.status(404).send()
+        } else {
+            res.send(`Program paused!`)
+        }
+    })
+})
+
+/**
+   * @swagger
    * /users/score:
    *   post:
+   *     tags:
+   *       - users
    *     description: Записывает результат тренировки
    *     produces:
    *       - application/json
@@ -194,6 +291,8 @@ router.post('/score', (req, res) => {
  * @swagger
  * /users/stat:
  *   get:
+ *     tags:
+ *       - users
  *     description: Возвращает результаты тренировок пользователя.
  *     produces:
  *      - application/json
@@ -215,8 +314,8 @@ router.post('/score', (req, res) => {
  *         content:
  *           'application/json':
  *         example: 
- *           count: 1
- *           result: [{name: ruslan, scores: [{score: 86, date: 2017-09-12T09:30:01.436Z, _id: 59b7a919dba5bb25bfb37f42}]}]
+ *           count: 2
+ *           result: [{score: 86, date: 2017-09-12T09:30:01.436Z, _id: 59b7a919dba5bb25bfb37f42}, {score: 24, date: 2017-09-14T09:30:01.436Z, _id: 59b7a919daa1bb25bfb37f42}]
  *       404:
  */
 router.get('/stat', (req, res) => {
@@ -253,6 +352,8 @@ router.get('/stat', (req, res) => {
  * @swagger
  * /users/stat/all:
  *   get:
+ *     tags:
+ *       - users
  *     description: Возвращает результаты тренировок всех юзеров.
  *     produces:
  *      - application/json
@@ -301,39 +402,37 @@ router.get('/stat/all', (req, res) => {
 })
 
 /**
-   * @swagger
-   * /users/program:
-   *   get:
-   *     description: Возвращает ID привязанной программы тренировок
-   *     consumes:
-   *      - application/json
-   *     parameters:
-   *      - name: name
-   *        in: query
-   *        description: Имя пользователя
-   *        required: true
-   *     responses:
-   *       200:
-   *         content:
-   *           'application/json':
-   *         example: 
-   *           program_id: 59bcc62d50bce82d5339d744
-   */
-router.get('/program', (req, res) => {
+ * @swagger
+ * /users/info:
+ *   get:
+ *     tags:
+ *       - users
+ *     description: Возвращает данные пользователя.
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *       - name: name
+ *         in: query
+ *         description: Имя пользователя
+ *         required: true
+ *     responses:
+ *       200:
+ *         content:
+ *           'application/json':
+ *         example: 
+ *           {_id: 59f3191bc1579a3a629a3ac7, name: xren, program: {id: asdsadsadsadsa, start_date: 2017-09-12T00:00:00.000Z, status: started}}
+ *       404:
+ */
+router.get('/info', (req, res) => {
     var name = req.query.name
-    if (!name) {
-        res.status(400).send()
-        return
-    }
-    User.getProgram(name, (err, program_id) => {
+    User.getInfo(name, (err, result) => {
         if (err) {
             res.status(500).send(err.message)
             return
-        }
-        if (!program_id) {
-            res.status(404).send()
+        } if (!result) {
+            res.status(404).send("User not found!")
         } else {
-            res.send({ 'program_id': program_id })
+            res.send(result)
         }
     })
 })
