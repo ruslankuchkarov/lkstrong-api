@@ -194,7 +194,7 @@ router.post('/score', (req, res) => {
  * @swagger
  * /users/stat:
  *   get:
- *     description: Возвращает результаты тренировок. Если мя не указано, то возвращаются результаты всех юзеров.
+ *     description: Возвращает результаты тренировок пользователя.
  *     produces:
  *      - application/json
  *     parameters:
@@ -216,7 +216,7 @@ router.post('/score', (req, res) => {
  *           'application/json':
  *         example: 
  *           count: 1
- *           scores: [{score: 86, date: 2017-09-12T09:30:01.436Z, _id: 59b7a919dba5bb25bfb37f42}]
+ *           result: [{name: ruslan, scores: [{score: 86, date: 2017-09-12T09:30:01.436Z, _id: 59b7a919dba5bb25bfb37f42}]}]
  *       404:
  */
 router.get('/stat', (req, res) => {
@@ -243,7 +243,7 @@ router.get('/stat', (req, res) => {
             }if (!scores) {
                 res.status(404).send("Scores not found!")
             } else {
-                res.send({ 'count': Object.keys(scores).length, 'result': scores })
+                res.send({ 'count': scores.length, 'result': scores })
             }
         })
     }
@@ -253,7 +253,7 @@ router.get('/stat', (req, res) => {
  * @swagger
  * /users/stat/all:
  *   get:
- *     description: Возвращает результаты тренировок. Если имя не указано, то возвращаются результаты всех юзеров.
+ *     description: Возвращает результаты тренировок всех юзеров.
  *     produces:
  *      - application/json
  *     parameters:
@@ -271,22 +271,22 @@ router.get('/stat', (req, res) => {
  *           'application/json':
  *         example: 
  *           count: 1
- *           scores: [{score: 86, date: 2017-09-12T09:30:01.436Z, _id: 59b7a919dba5bb25bfb37f42}]
+ *           result: [{name: ruslan, scores: [{score: 86, date: 2017-09-12T09:30:01.436Z, _id: 59b7a919dba5bb25bfb37f42}]}]
  *       404:
  */
 router.get('/stat/all', (req, res) => {
     var date_from = req.query.date_from
     var date_to = req.query.date_to
     if (date_from) {
-        User.getAllStatByDate(date_from, date_to, (err, scores) => {
+        User.getAllStatByDate(date_from, date_to, (err, users) => {
             if (err) {
                 res.status(500).send(err.message)
                 return
             }
-            if (!scores) {
+            if (!users) {
                 res.status(404).send("Scores not found!")
             } else {
-                res.send({ 'count': scores.length, 'result': scores })
+                res.send({ 'count': users.length, 'result': users })
             }
         })
     } else {
@@ -295,7 +295,7 @@ router.get('/stat/all', (req, res) => {
                 res.status(500).send(err.message)
                 return
             }
-            res.send({ 'count': Object.keys(users).length, 'result': users })
+            res.send({ 'count': users.length, 'result': users })
         })
     }
 })

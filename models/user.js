@@ -26,7 +26,10 @@ UserSchema.statics.all = function (cb) {
 function filterScores(scores, dateFrom, dateTo, cb) {
     scoresArray = []
     scores.forEach((score, index, array) => {
-        if (new Date(score.date) >= new Date(dateFrom) && new Date(score.date) <= new Date(dateTo)) {
+        score_date = new Date(score.date).setHours(0,0,0,0)
+        date_from = new Date(dateFrom).setHours(0,0,0,0)
+        date_to = new Date(dateTo).setHours(0,0,0,0)
+        if (score_date >= date_from && score_date <= date_to) {
             scoresArray.push(score)
         }
         if ((index + 1) === array.length) {
@@ -64,17 +67,16 @@ UserSchema.statics.getAllStat = function (cb) {
 }
 
 UserSchema.statics.getAllStatByDate = function (date_from, date_to, cb) {
-    this.find({ 'scores.date': { $gte: new Date(date_from), $lte: new Date(date_to) } }).exec((err, found_users) => {
+    date_from_in_mongo = new Date(date_from).setHours(0,0,0,0)
+    date_to_in_mongo = new Date(date_to).setHours(23,59,59,59)
+    this.find({ 'scores.date': { $gte: date_from_in_mongo, $lte: date_to_in_mongo } }).exec((err, found_users) => {
         if (err) return cb(err)
-        var userMap = {}
+        var userMap = []
         found_users.forEach((user, index, array) => {
             filterScores(user.scores, date_from, date_to, (err, filtered_scores) => {
-                userMap[user.name] =  filtered_scores
+                userMap.push({'name': user.name, 'scores': filtered_scores})  
             })
-            console.log(index, array.length)
             if ((index + 1) === array.length) {
-                console.log('done')
-                console.log(userMap)
                 cb(null, userMap)
             }
         })
